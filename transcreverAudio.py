@@ -1,4 +1,4 @@
-from fastapi import FastAPI, UploadFile, File, HTTPException
+from fastapi import APIRouter, UploadFile, File, HTTPException
 import tempfile
 import os
 from openai import OpenAI
@@ -6,20 +6,18 @@ from dotenv import load_dotenv
 
 load_dotenv()
 
-app = FastAPI()
+router = APIRouter()
 client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
 
-@app.get("/")
+@router.get("/")
 async def health_check():
     return {"status": "online", "message": "API de Transcrição de Áudio ativa"}
 
-@app.post("/transcrever-audio")
+@router.post("/transcrever-audio")
 async def transcrever_audio(audio: UploadFile = File(...)):
-    # Pega a extensão original
+
     extensao = os.path.splitext(audio.filename or "audio.ogg")[1].lower() or ".ogg"
     
-    # A OpenAI suporta .ogg, mas costuma dar erro com .oga (comum no Telegram)
-    # Mapeamos .oga para .ogg para garantir compatibilidade
     if extensao == ".oga":
         extensao = ".ogg"
 
@@ -31,7 +29,7 @@ async def transcrever_audio(audio: UploadFile = File(...)):
     try:
         with open(caminho_temp, "rb") as arquivo:
             transcricao = client.audio.transcriptions.create(
-                model="whisper-1", # gpt-4o-mini-transcribe não é o nome oficial do modelo de áudio, o correto é whisper-1
+                model="whisper-1",
                 file=arquivo
             )
             print(f"Transcrição completa: {transcricao.text}")
