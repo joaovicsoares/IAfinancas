@@ -9,10 +9,6 @@ load_dotenv()
 router = APIRouter()
 client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
 
-@router.get("/")
-async def health_check():
-    return {"status": "online", "message": "API de Transcrição de Áudio ativa"}
-
 @router.post("/transcrever-audio")
 async def transcrever_audio(audio: UploadFile = File(...)):
 
