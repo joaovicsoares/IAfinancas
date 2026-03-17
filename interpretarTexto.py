@@ -28,14 +28,14 @@ A data de hoje é {hoje}. Use esta referência para datas relativas como 'hoje',
 
 Retorne apenas JSON com:
 
-categoryId: '', -- sempre '1'
+categoryId: '', -- sempre '0b91460d-d079-4177-b287-6ec6f191960d'
 sharedWalletId: null, -- sempre null
 amount: 0.00, -- valor sempre positivo
 type: 1, -- 1 = despesa, 0 = receita
 recurrenceType: 0, -- 0 = única, 1 = fixa, 2 = parcelada
 totalInstallments: null, -- apenas preencher se recurrenceType = 2
 description: '', -- máximo 200 caracteres
-date: '' -- formato ISO8601: yyyy-mm-dd
+date: '' -- informe data e hora em UTC no formato ISO 8601 yyyy-MM-ddTHH:mm:ssZ
 """
             },
             {
