@@ -3,6 +3,8 @@ from openai import OpenAI
 import os
 from dotenv import load_dotenv
 from datetime import datetime
+from pydantic import BaseModel
+from typing import List
 
 router = APIRouter()
 
@@ -10,10 +12,19 @@ load_dotenv()
 
 client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
 
-@router.post("/interpretar-transacao")
-async def interpretar_transacao(payload: dict):
+class Categoria(BaseModel):
+    guid: str
+    nome: str
 
-    texto = payload["texto"]
+class InterpretarPayload(BaseModel):
+    texto: str
+    categorias: List[Categoria]
+
+@router.post("/interpretar-transacao")
+async def interpretar_transacao(payload: InterpretarPayload):
+
+    texto = payload.texto
+    categorias_str = "\n".join([f"- {cat.nome} (ID: {cat.guid})" for cat in payload.categorias])
     hoje = datetime.now().strftime("%Y-%m-%d")
 
     resposta = client.chat.completions.create(
@@ -26,9 +37,12 @@ async def interpretar_transacao(payload: dict):
 Extraia os dados financeiros do texto.
 A data de hoje é {hoje}. Use esta referência para datas relativas como 'hoje', 'ontem', etc.
 
+Escolha a categoria mais adequada da lista abaixo:
+{categorias_str}
+
 Retorne apenas JSON com:
 
-categoryId: '', -- sempre '0b91460d-d079-4177-b287-6ec6f191960d'
+categoryId: '', -- O ID da categoria escolhida da lista
 sharedWalletId: null, -- sempre null
 amount: 0.00, -- valor sempre positivo
 type: 1, -- 1 = despesa, 0 = receita
